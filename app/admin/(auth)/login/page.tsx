@@ -16,14 +16,19 @@ export default function LoginPage() {
     setLoading(true);
     setError("");
 
-    const supabase = createClient();
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    try {
+      const supabase = createClient();
+      const { error: authError } = await supabase.auth.signInWithPassword({ email, password });
 
-    if (error) {
-      setError("이메일 또는 비밀번호가 올바르지 않아요.");
+      if (authError) {
+        setError("이메일 또는 비밀번호가 올바르지 않아요.");
+        setLoading(false);
+      } else {
+        window.location.replace("/admin/dashboard");
+      }
+    } catch (err) {
+      setError("로그인 중 오류가 발생했어요.");
       setLoading(false);
-    } else {
-      window.location.href = "/admin/dashboard";
     }
   }
 
