@@ -23,8 +23,7 @@ export default function LoginPage() {
       setError("이메일 또는 비밀번호가 올바르지 않아요.");
       setLoading(false);
     } else {
-      router.push("/admin/dashboard");
-      router.refresh();
+      window.location.href = "/admin/dashboard";
     }
   }
 
