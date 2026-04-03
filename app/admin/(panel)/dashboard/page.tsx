@@ -1,46 +1,55 @@
-import { createClient } from "@/lib/supabase/server";
+"use client";
+
+import { useState, useEffect, useCallback } from "react";
+import { createClient } from "@/lib/supabase/client";
 import type { Inquiry } from "@/types";
 
-export const revalidate = 0;
+export default function DashboardPage() {
+  const [memberCount, setMemberCount] = useState(0);
+  const [nextEvent, setNextEvent] = useState<{
+    title: string;
+    date: string;
+    time?: string;
+  } | null>(null);
+  const [unpaidCount, setUnpaidCount] = useState(0);
+  const [recentInquiries, setRecentInquiries] = useState<Inquiry[]>([]);
 
-async function getStats() {
-  const supabase = await createClient();
+  const supabase = createClient();
 
-  const [membersRes, eventsRes, unpaidRes, inquiriesRes] = await Promise.all([
-    supabase
-      .from("members")
-      .select("id", { count: "exact", head: true })
-      .eq("status", "active"),
-    supabase
-      .from("events")
-      .select("id, title, date, time")
-      .gte("date", new Date().toISOString().split("T")[0])
-      .order("date", { ascending: true })
-      .limit(1),
-    supabase
-      .from("dues")
-      .select("id", { count: "exact", head: true })
-      .eq("paid", false)
-      .eq("year", new Date().getFullYear())
-      .eq("month", new Date().getMonth() + 1),
-    supabase
-      .from("inquiries")
-      .select("*")
-      .order("created_at", { ascending: false })
-      .limit(5),
-  ]);
+  const fetchStats = useCallback(async () => {
+    const [membersRes, eventsRes, unpaidRes, inquiriesRes] = await Promise.all([
+      supabase
+        .from("members")
+        .select("id", { count: "exact", head: true })
+        .eq("status", "active"),
+      supabase
+        .from("events")
+        .select("id, title, date, time")
+        .gte("date", new Date().toISOString().split("T")[0])
+        .order("date", { ascending: true })
+        .limit(1),
+      supabase
+        .from("dues")
+        .select("id", { count: "exact", head: true })
+        .eq("paid", false)
+        .eq("year", new Date().getFullYear())
+        .eq("month", new Date().getMonth() + 1),
+      supabase
+        .from("inquiries")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(5),
+    ]);
 
-  return {
-    memberCount: membersRes.count ?? 0,
-    nextEvent: eventsRes.data?.[0] ?? null,
-    unpaidCount: unpaidRes.count ?? 0,
-    recentInquiries: (inquiriesRes.data as Inquiry[]) ?? [],
-  };
-}
+    setMemberCount(membersRes.count ?? 0);
+    setNextEvent(eventsRes.data?.[0] ?? null);
+    setUnpaidCount(unpaidRes.count ?? 0);
+    setRecentInquiries((inquiriesRes.data as Inquiry[]) ?? []);
+  }, []);
 
-export default async function DashboardPage() {
-  const { memberCount, nextEvent, unpaidCount, recentInquiries } =
-    await getStats();
+  useEffect(() => {
+    fetchStats();
+  }, [fetchStats]);
 
   const cards = [
     {
@@ -62,7 +71,10 @@ export default async function DashboardPage() {
       label: "이번 달 미납",
       value: `${unpaidCount}건`,
       icon: "💰",
-      color: unpaidCount > 0 ? "bg-red-50 text-red-700" : "bg-green-50 text-green-700",
+      color:
+        unpaidCount > 0
+          ? "bg-red-50 text-red-700"
+          : "bg-green-50 text-green-700",
     },
     {
       label: "최근 문의",
@@ -76,7 +88,6 @@ export default async function DashboardPage() {
     <div>
       <h1 className="text-2xl font-bold text-gray-900 mb-6">대시보드</h1>
 
-      {/* 요약 카드 */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {cards.map((card) => (
           <div key={card.label} className="card">
@@ -89,14 +100,13 @@ export default async function DashboardPage() {
               <span className="text-sm text-gray-500">{card.label}</span>
             </div>
             <p className="text-xl font-bold text-gray-900">{card.value}</p>
-            {card.sub && (
+            {"sub" in card && card.sub && (
               <p className="text-sm text-gray-500 mt-0.5">{card.sub}</p>
             )}
           </div>
         ))}
       </div>
 
-      {/* 최근 입회 문의 */}
       <div className="card">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">
           최근 입회 문의
@@ -106,7 +116,10 @@ export default async function DashboardPage() {
         ) : (
           <div className="divide-y divide-gray-100">
             {recentInquiries.map((inq) => (
-              <div key={inq.id} className="py-3 flex items-start justify-between">
+              <div
+                key={inq.id}
+                className="py-3 flex items-start justify-between"
+              >
                 <div>
                   <p className="font-medium text-gray-900">{inq.name}</p>
                   <p className="text-sm text-gray-500">{inq.phone}</p>
