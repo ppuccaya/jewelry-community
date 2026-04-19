@@ -5,12 +5,16 @@ import { usePathname } from "next/navigation";
 
 const items = [
   { href: "/members", label: "Lounge", note: "홈" },
-  { href: "/members/schedule", label: "Schedule", note: "일정·공지" },
-  { href: "/members/records", label: "Records", note: "지난 모임" },
-  { href: "/members/directory", label: "Directory", note: "멤버" },
-  { href: "/members/map", label: "Map", note: "장소 지도" },
-  { href: "/members/worries", label: "Worries", note: "익명 고민함" },
+  { href: "/members/schedule", label: "Schedule", note: "일정" },
+  { href: "/members/worries", label: "Worries", note: "익명 고민" },
   { href: "/members/mvp", label: "MVP", note: "연간 MVP" },
+];
+
+const publicItems = [
+  { href: "/gallery", label: "갤러리" },
+  { href: "/journal", label: "모임 일지" },
+  { href: "/people", label: "사람들" },
+  { href: "/map", label: "지도" },
 ];
 
 export default function MembersNav() {
@@ -30,6 +34,9 @@ export default function MembersNav() {
       </div>
 
       <nav className="flex-1 space-y-1">
+        <p className="text-[10px] tracking-wide text-ink-600 mb-2 px-3">
+          PRIVATE
+        </p>
         {items.map((item) => {
           const active =
             item.href === "/members"
@@ -52,6 +59,20 @@ export default function MembersNav() {
             </Link>
           );
         })}
+
+        <p className="text-[10px] tracking-wide text-ink-600 mb-2 mt-6 px-3">
+          PUBLIC PAGES
+        </p>
+        {publicItems.map((item) => (
+          <Link
+            key={item.href}
+            href={item.href}
+            className="flex items-center justify-between px-3 py-2 text-ink-500 hover:text-ink-200 transition-colors"
+          >
+            <span className="text-sm">{item.label}</span>
+            <span className="text-[10px] text-ink-700">↗</span>
+          </Link>
+        ))}
       </nav>
 
       <div className="pt-6 border-t border-ink-900 space-y-2">
@@ -59,7 +80,7 @@ export default function MembersNav() {
           href="/"
           className="block text-xs text-ink-500 hover:text-ink-200 px-3"
         >
-          ← 퍼블릭 사이트
+          ← 메인으로
         </Link>
         <button
           onClick={() => {

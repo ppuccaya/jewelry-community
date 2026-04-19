@@ -16,53 +16,84 @@ export default function Nav() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const links = [
+  const publicLinks = [
     { href: "/", label: "소개" },
     { href: "/program", label: "프로그램" },
+    { href: "/gallery", label: "갤러리" },
+    { href: "/journal", label: "모임 일지" },
+    { href: "/people", label: "사람들" },
+    { href: "/map", label: "지도" },
     { href: "/apply", label: "참여 신청" },
-    { href: "/members", label: "멤버 라운지", private: true },
   ];
+
+  const isHome = pathname === "/";
 
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-40 transition-all ${
-        scrolled
+        scrolled || !isHome
           ? "bg-ink-50/95 backdrop-blur border-b border-ink-200"
           : "bg-transparent"
       }`}
     >
       <div className="container-wide flex items-center justify-between h-16">
-        <Link
-          href="/"
-          className="font-serif text-lg tracking-wide text-ink-900"
-        >
-          <span className="eyebrow block text-[10px] text-ink-500 mb-0.5">
+        <Link href="/" className="font-serif tracking-wide">
+          <span
+            className={`eyebrow block text-[10px] mb-0.5 ${
+              isHome && !scrolled ? "text-bronze-300" : "text-ink-500"
+            }`}
+          >
             Private Circle
           </span>
-          사업가의 격식
+          <span
+            className={`text-base ${
+              isHome && !scrolled ? "text-ink-50" : "text-ink-900"
+            }`}
+          >
+            사업가의 격식
+          </span>
         </Link>
 
         {/* 데스크탑 */}
-        <nav className="hidden md:flex items-center gap-8">
-          {links.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={`text-sm transition-colors ${
-                pathname === link.href
-                  ? "text-ink-900 font-medium"
-                  : "text-ink-500 hover:text-ink-900"
-              } ${link.private ? "border-l border-ink-300 pl-8 text-bronze-700" : ""}`}
-            >
-              {link.label}
-            </Link>
-          ))}
+        <nav className="hidden lg:flex items-center gap-6 xl:gap-8">
+          {publicLinks.map((link) => {
+            const active = pathname === link.href;
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={`text-sm transition-colors ${
+                  active
+                    ? isHome && !scrolled
+                      ? "text-ink-50 font-medium"
+                      : "text-ink-900 font-medium"
+                    : isHome && !scrolled
+                    ? "text-ink-300 hover:text-ink-50"
+                    : "text-ink-500 hover:text-ink-900"
+                }`}
+              >
+                {link.label}
+              </Link>
+            );
+          })}
+          <Link
+            href="/members"
+            className={`text-sm ml-4 pl-6 border-l transition-colors ${
+              isHome && !scrolled
+                ? "border-ink-700 text-bronze-300 hover:text-bronze-200"
+                : "border-ink-300 text-bronze-700 hover:text-bronze-900"
+            }`}
+          >
+            멤버 라운지
+          </Link>
         </nav>
 
         {/* 모바일 */}
         <button
           onClick={() => setOpen(!open)}
-          className="md:hidden text-ink-900"
+          className={`lg:hidden text-xl ${
+            isHome && !scrolled ? "text-ink-50" : "text-ink-900"
+          }`}
           aria-label="메뉴"
         >
           {open ? "✕" : "≡"}
@@ -70,20 +101,25 @@ export default function Nav() {
       </div>
 
       {open && (
-        <div className="md:hidden bg-ink-50 border-t border-ink-200">
-          <nav className="container-wide py-4 flex flex-col gap-4">
-            {links.map((link) => (
+        <div className="lg:hidden bg-ink-50 border-t border-ink-200">
+          <nav className="container-wide py-4 flex flex-col">
+            {publicLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
                 onClick={() => setOpen(false)}
-                className={`text-sm ${
-                  link.private ? "text-bronze-700" : "text-ink-700"
-                }`}
+                className="text-sm text-ink-700 py-3 border-b border-ink-100"
               >
                 {link.label}
               </Link>
             ))}
+            <Link
+              href="/members"
+              onClick={() => setOpen(false)}
+              className="text-sm text-bronze-700 py-3 font-medium"
+            >
+              멤버 라운지 →
+            </Link>
           </nav>
         </div>
       )}

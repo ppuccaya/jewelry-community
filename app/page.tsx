@@ -1,10 +1,14 @@
 import Nav from "@/components/public/Nav";
 import Hero from "@/components/public/Hero";
 import Philosophy from "@/components/public/Philosophy";
+import GalleryPreview from "@/components/public/GalleryPreview";
+import JournalPreview from "@/components/public/JournalPreview";
+import PeoplePreview from "@/components/public/PeoplePreview";
 import Experience from "@/components/public/Experience";
 import MapArchive from "@/components/public/MapArchive";
 import InquiryForm from "@/components/public/InquiryForm";
 import Footer from "@/components/public/Footer";
+import Link from "next/link";
 
 export default function HomePage() {
   return (
@@ -13,7 +17,10 @@ export default function HomePage() {
       <main>
         <Hero />
         <Philosophy />
+        <GalleryPreview />
         <Experience />
+        <JournalPreview />
+        <PeoplePreview />
         <MapArchive />
 
         {/* 참여 신청 CTA */}
@@ -31,12 +38,12 @@ export default function HomePage() {
               <br />
               결이 맞는 분들을 천천히 알아가고, 서로 초대하는 방식으로 채워갑니다.
             </p>
-            <a
+            <Link
               href="/apply"
               className="inline-block bg-ink-900 hover:bg-ink-800 text-ink-50 font-medium px-10 py-4 tracking-wide transition-colors"
             >
               참여를 신청하시겠어요?
-            </a>
+            </Link>
           </div>
         </section>
 
