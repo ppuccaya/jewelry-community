@@ -1,10 +1,29 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { journalEntries } from "@/lib/journalData";
+import { createClient } from "@/lib/supabase/client";
 import { LockBadge } from "./LockedContent";
+import type { JournalEntryRow } from "@/types";
 
 export default function JournalPreview() {
-  const recent = journalEntries.slice(0, 3);
-  if (recent.length === 0) return null;
+  const [entries, setEntries] = useState<JournalEntryRow[]>([]);
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase
+      .from("journal_entries")
+      .select("*")
+      .order("date", { ascending: false })
+      .limit(3)
+      .then((res) => {
+        setEntries((res.data as JournalEntryRow[]) ?? []);
+        setLoaded(true);
+      });
+  }, []);
+
+  if (!loaded || entries.length === 0) return null;
 
   return (
     <section className="py-24 md:py-28 bg-ink-50">
@@ -25,16 +44,16 @@ export default function JournalPreview() {
         </div>
 
         <div className="grid md:grid-cols-3 gap-6">
-          {recent.map((e) => {
-            const href = e.isPublic ? `/journal/${e.id}` : "/members";
+          {entries.map((e) => {
+            const href = e.is_public ? `/journal/${e.slug}` : "/members";
             return (
               <Link key={e.id} href={href} className="group">
                 <article className="bg-white border border-ink-200 group-hover:border-bronze-400 transition-colors h-full flex flex-col">
                   <div
-                    className={`aspect-[16/10] bg-gradient-to-br ${e.coverTone} relative flex items-end p-5`}
+                    className={`aspect-[16/10] bg-gradient-to-br ${e.cover_tone} relative flex items-end p-5`}
                   >
                     <p className="text-ink-200 text-xs drop-shadow">{e.date}</p>
-                    {!e.isPublic && (
+                    {!e.is_public && (
                       <div className="absolute top-3 right-3">
                         <LockBadge />
                       </div>

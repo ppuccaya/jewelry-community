@@ -1,59 +1,82 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useParams, notFound } from "next/navigation";
+import Link from "next/link";
 import Nav from "@/components/public/Nav";
 import Footer from "@/components/public/Footer";
-import Link from "next/link";
-import { notFound } from "next/navigation";
-import { journalEntries } from "@/lib/journalData";
+import { createClient } from "@/lib/supabase/client";
 import { LockOverlay } from "@/components/public/LockedContent";
+import type { JournalEntryRow } from "@/types";
 
-export function generateStaticParams() {
-  return journalEntries.map((e) => ({ id: e.id }));
-}
+export default function JournalDetail() {
+  const { id } = useParams<{ id: string }>(); // 실제로는 slug
+  const [entry, setEntry] = useState<JournalEntryRow | null>(null);
+  const [notFoundState, setNotFoundState] = useState(false);
 
-export default async function JournalDetail({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = await params;
-  const entry = journalEntries.find((e) => e.id === id);
-  if (!entry) return notFound();
+  useEffect(() => {
+    const supabase = createClient();
+    supabase
+      .from("journal_entries")
+      .select("*")
+      .eq("slug", id)
+      .single()
+      .then((res) => {
+        if (res.error || !res.data) setNotFoundState(true);
+        else setEntry(res.data as JournalEntryRow);
+      });
+  }, [id]);
+
+  if (notFoundState) notFound();
+  if (!entry)
+    return (
+      <>
+        <Nav />
+        <main className="bg-ink-50 pt-40 min-h-screen text-center">
+          <p className="text-ink-400 text-sm">불러오는 중...</p>
+        </main>
+      </>
+    );
+
+  const paragraphs = entry.body
+    ? entry.body.split(/\n\s*\n/).filter(Boolean)
+    : [];
 
   return (
     <>
       <Nav />
       <main className="bg-ink-50 pt-24">
-        {/* 커버 */}
         <section
-          className={`bg-gradient-to-br ${entry.coverTone} py-32 md:py-40 text-center`}
+          className={`bg-gradient-to-br ${entry.cover_tone} py-32 md:py-40 text-center`}
         >
           <div className="container-narrow">
-            <p className="eyebrow text-bronze-200 mb-4">
-              {entry.tag}
-            </p>
+            {entry.tag && (
+              <p className="eyebrow text-bronze-200 mb-4">{entry.tag}</p>
+            )}
             <h1 className="font-serif text-3xl md:text-5xl text-ink-50 leading-tight mb-6 drop-shadow">
               {entry.title}
             </h1>
             <div className="w-12 h-px bg-bronze-300 mx-auto mb-4" />
             <p className="text-ink-200 text-sm">
-              {entry.date} · {entry.place}
+              {entry.date}
+              {entry.place && ` · ${entry.place}`}
             </p>
           </div>
         </section>
 
-        {/* 본문 */}
         <section className="py-16 md:py-24">
           <div className="container-narrow">
             <p className="text-ink-800 text-lg leading-loose mb-10 font-serif">
               {entry.teaser}
             </p>
 
-            {entry.isPublic && entry.body ? (
+            {entry.is_public && paragraphs.length > 0 ? (
               <div className="space-y-6 text-ink-700 leading-loose">
-                {entry.body.map((p, i) => (
+                {paragraphs.map((p, i) => (
                   <p key={i}>{p}</p>
                 ))}
               </div>
-            ) : (
+            ) : !entry.is_public ? (
               <div className="relative min-h-[280px] mt-10">
                 <div className="space-y-6 text-ink-500 leading-loose select-none pointer-events-none blur-[2px]">
                   <p>
@@ -61,24 +84,19 @@ export default async function JournalDetail({
                     우리가 나눈 대화, 서로의 표정, 그리고 남긴 약속.
                   </p>
                   <p>
-                    멤버들과만 공유하는 문장이 이어집니다. 이곳에 적힌 이야기는
-                    모임 안에서 오랫동안 기억되고, 다음 해의 방향을 만드는
-                    재료가 됩니다.
-                  </p>
-                  <p>
-                    몇 명의 이름과 몇 번의 잔, 그리고 창밖의 장면까지.
+                    멤버들과만 공유하는 문장이 이어집니다.
                   </p>
                 </div>
                 <LockOverlay message="이야기의 뒷부분은 멤버 라운지에서 이어집니다." />
               </div>
-            )}
+            ) : null}
 
             <div className="mt-16 pt-10 border-t border-ink-200 flex items-center justify-between">
               <Link
                 href="/journal"
                 className="text-sm text-ink-500 hover:text-ink-900"
               >
-                ← 모임 일지 목록
+                ← 목록
               </Link>
               <Link
                 href="/apply"

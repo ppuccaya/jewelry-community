@@ -1,9 +1,28 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { people } from "@/lib/peopleData";
+import { createClient } from "@/lib/supabase/client";
+import type { PublicPerson } from "@/types";
 
 export default function PeoplePreview() {
-  const preview = people.slice(0, 6);
-  if (preview.length === 0) return null;
+  const [people, setPeople] = useState<PublicPerson[]>([]);
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase
+      .from("public_people")
+      .select("*")
+      .order("order_num", { ascending: true })
+      .limit(6)
+      .then((res) => {
+        setPeople((res.data as PublicPerson[]) ?? []);
+        setLoaded(true);
+      });
+  }, []);
+
+  if (!loaded || people.length === 0) return null;
 
   return (
     <section className="py-24 md:py-28 bg-ink-900 text-ink-100">
@@ -24,7 +43,7 @@ export default function PeoplePreview() {
         </div>
 
         <div className="grid grid-cols-3 md:grid-cols-6 gap-3 md:gap-4">
-          {preview.map((p) => (
+          {people.map((p) => (
             <Link key={p.id} href="/people" className="group">
               <div
                 className={`aspect-square bg-gradient-to-br ${p.tone} flex items-center justify-center group-hover:scale-[1.02] transition-transform`}

@@ -1,9 +1,28 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Nav from "@/components/public/Nav";
 import Footer from "@/components/public/Footer";
-import { people } from "@/lib/peopleData";
+import { createClient } from "@/lib/supabase/client";
 import { LockBadge } from "@/components/public/LockedContent";
+import type { PublicPerson } from "@/types";
 
 export default function PeoplePage() {
+  const [people, setPeople] = useState<PublicPerson[]>([]);
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase
+      .from("public_people")
+      .select("*")
+      .order("order_num", { ascending: true })
+      .then((res) => {
+        setPeople((res.data as PublicPerson[]) ?? []);
+        setLoaded(true);
+      });
+  }, []);
+
   return (
     <>
       <Nav />
@@ -20,11 +39,11 @@ export default function PeoplePage() {
 
         <section className="py-16">
           <div className="container-wide">
-            {people.length === 0 ? (
+            {!loaded ? (
+              <p className="text-center text-ink-400 text-sm">불러오는 중...</p>
+            ) : people.length === 0 ? (
               <div className="text-center py-24">
-                <p className="text-ink-400 text-sm">
-                  곧 소개될 예정입니다.
-                </p>
+                <p className="text-ink-400 text-sm">곧 소개될 예정입니다.</p>
               </div>
             ) : (
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -47,11 +66,11 @@ export default function PeoplePage() {
                       <p className="text-xs text-ink-500 mb-4">{p.field}</p>
                       <div className="w-6 h-px bg-bronze-400 mb-4" />
                       <p className="text-ink-700 text-sm italic mb-4">
-                        &ldquo;{p.oneLiner}&rdquo;
+                        &ldquo;{p.one_liner}&rdquo;
                       </p>
-                      {p.publicStory ? (
+                      {p.public_story ? (
                         <p className="text-ink-600 text-sm leading-relaxed">
-                          {p.publicStory}
+                          {p.public_story}
                         </p>
                       ) : (
                         <div className="text-center py-2">

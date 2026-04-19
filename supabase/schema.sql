@@ -98,6 +98,66 @@ create table if not exists anonymous_worries (
   created_at timestamptz not null default now()
 );
 
+-- 프로그램 섹션 (프로그램 페이지 카테고리)
+create table if not exists program_sections (
+  id uuid primary key default gen_random_uuid(),
+  number text not null,
+  title text not null,
+  order_num integer not null default 0,
+  is_published boolean not null default true,
+  created_at timestamptz not null default now()
+);
+
+-- 프로그램 항목 (각 섹션 하위 아이템)
+create table if not exists program_items (
+  id uuid primary key default gen_random_uuid(),
+  section_id uuid references program_sections(id) on delete cascade,
+  label text not null,
+  order_num integer not null default 0,
+  created_at timestamptz not null default now()
+);
+
+-- 모임 일지 (퍼블릭 /journal)
+create table if not exists journal_entries (
+  id uuid primary key default gen_random_uuid(),
+  slug text unique not null,
+  date text not null,
+  title text not null,
+  place text,
+  tag text,
+  cover_tone text default 'from-ink-700 via-bronze-600 to-ink-800',
+  teaser text not null,
+  body text,
+  is_public boolean not null default false,
+  created_at timestamptz not null default now()
+);
+
+-- 퍼블릭 사람들 (/people)
+create table if not exists public_people (
+  id uuid primary key default gen_random_uuid(),
+  initial text not null,
+  name text not null,
+  field text not null,
+  since text,
+  tone text default 'from-ink-800 to-bronze-700',
+  one_liner text not null,
+  tags text[],
+  public_story text,
+  order_num integer not null default 0,
+  created_at timestamptz not null default now()
+);
+
+-- 장소 지도 핀 (/map)
+create table if not exists map_locations (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  date text,
+  story text,
+  is_public boolean not null default true,
+  order_num integer not null default 0,
+  created_at timestamptz not null default now()
+);
+
 -- ==========================================
 -- RLS (Row Level Security) 설정
 -- ==========================================

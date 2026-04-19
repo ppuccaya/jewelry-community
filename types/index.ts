@@ -70,3 +70,59 @@ export interface Inquiry {
   message?: string;
   created_at: string;
 }
+
+export interface ProgramSection {
+  id: string;
+  number: string;
+  title: string;
+  order_num: number;
+  is_published: boolean;
+  created_at: string;
+  items?: ProgramItem[];
+}
+
+export interface ProgramItem {
+  id: string;
+  section_id: string;
+  label: string;
+  order_num: number;
+  created_at: string;
+}
+
+export interface JournalEntryRow {
+  id: string;
+  slug: string;
+  date: string;
+  title: string;
+  place?: string;
+  tag?: string;
+  cover_tone: string;
+  teaser: string;
+  body?: string;
+  is_public: boolean;
+  created_at: string;
+}
+
+export interface PublicPerson {
+  id: string;
+  initial: string;
+  name: string;
+  field: string;
+  since?: string;
+  tone: string;
+  one_liner: string;
+  tags?: string[];
+  public_story?: string;
+  order_num: number;
+  created_at: string;
+}
+
+export interface MapLocation {
+  id: string;
+  name: string;
+  date?: string;
+  story?: string;
+  is_public: boolean;
+  order_num: number;
+  created_at: string;
+}

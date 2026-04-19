@@ -5,12 +5,16 @@ import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
 const navItems = [
-  { href: "/admin/dashboard", label: "대시보드", icon: "📊" },
-  { href: "/admin/calendar", label: "일정 캘린더", icon: "📅" },
-  { href: "/admin/activities", label: "활동 기록", icon: "📸" },
-  { href: "/admin/members", label: "멤버 명단", icon: "👥" },
-  { href: "/admin/ideas", label: "아이디어 판", icon: "💡" },
-  { href: "/admin/finance", label: "회비/정산", icon: "💰" },
+  { href: "/admin/dashboard", label: "대시보드", icon: "📊", group: "기본" },
+  { href: "/admin/program", label: "프로그램", icon: "📘", group: "웹 콘텐츠" },
+  { href: "/admin/journal", label: "모임 일지", icon: "📖", group: "웹 콘텐츠" },
+  { href: "/admin/people", label: "사람들", icon: "👤", group: "웹 콘텐츠" },
+  { href: "/admin/locations", label: "지도 장소", icon: "📍", group: "웹 콘텐츠" },
+  { href: "/admin/calendar", label: "일정 캘린더", icon: "📅", group: "운영" },
+  { href: "/admin/activities", label: "활동 기록", icon: "📸", group: "운영" },
+  { href: "/admin/members", label: "멤버 명단", icon: "👥", group: "운영" },
+  { href: "/admin/ideas", label: "아이디어 판", icon: "💡", group: "운영" },
+  { href: "/admin/finance", label: "회비/정산", icon: "💰", group: "운영" },
 ];
 
 export default function AdminSidebar() {
@@ -33,24 +37,33 @@ export default function AdminSidebar() {
         <h1 className="font-bold text-lg leading-tight">종로 주얼리 2세</h1>
       </div>
 
-      <nav className="flex-1 px-3 py-4 space-y-1">
-        {navItems.map((item) => {
-          const isActive = pathname.startsWith(item.href);
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${
-                isActive
-                  ? "bg-gold-600 text-white"
-                  : "text-gray-400 hover:bg-gray-800 hover:text-white"
-              }`}
-            >
-              <span>{item.icon}</span>
-              <span>{item.label}</span>
-            </Link>
-          );
-        })}
+      <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+        {["기본", "웹 콘텐츠", "운영"].map((group) => (
+          <div key={group} className="mb-4">
+            <p className="text-[10px] uppercase tracking-widest text-gray-500 px-3 mb-2">
+              {group}
+            </p>
+            {navItems
+              .filter((n) => n.group === group)
+              .map((item) => {
+                const isActive = pathname.startsWith(item.href);
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
+                      isActive
+                        ? "bg-gold-600 text-white"
+                        : "text-gray-400 hover:bg-gray-800 hover:text-white"
+                    }`}
+                  >
+                    <span>{item.icon}</span>
+                    <span>{item.label}</span>
+                  </Link>
+                );
+              })}
+          </div>
+        ))}
       </nav>
 
       <div className="px-3 py-4 border-t border-gray-700">

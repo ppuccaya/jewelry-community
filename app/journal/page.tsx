@@ -1,10 +1,29 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import Link from "next/link";
 import Nav from "@/components/public/Nav";
 import Footer from "@/components/public/Footer";
-import Link from "next/link";
-import { journalEntries } from "@/lib/journalData";
+import { createClient } from "@/lib/supabase/client";
 import { LockBadge } from "@/components/public/LockedContent";
+import type { JournalEntryRow } from "@/types";
 
 export default function JournalPage() {
+  const [entries, setEntries] = useState<JournalEntryRow[]>([]);
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase
+      .from("journal_entries")
+      .select("*")
+      .order("date", { ascending: false })
+      .then((res) => {
+        setEntries((res.data as JournalEntryRow[]) ?? []);
+        setLoaded(true);
+      });
+  }, []);
+
   return (
     <>
       <Nav />
@@ -21,7 +40,9 @@ export default function JournalPage() {
 
         <section className="py-16">
           <div className="container-wide">
-            {journalEntries.length === 0 ? (
+            {!loaded ? (
+              <p className="text-center text-ink-400 text-sm">불러오는 중...</p>
+            ) : entries.length === 0 ? (
               <div className="text-center py-24">
                 <p className="text-ink-400 text-sm">
                   아직 등록된 일지가 없습니다.
@@ -29,18 +50,18 @@ export default function JournalPage() {
               </div>
             ) : (
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {journalEntries.map((e) => {
-                  const href = e.isPublic ? `/journal/${e.id}` : "/members";
+                {entries.map((e) => {
+                  const href = e.is_public ? `/journal/${e.slug}` : "/members";
                   return (
                     <Link key={e.id} href={href} className="group">
                       <article className="bg-white border border-ink-200 group-hover:border-bronze-400 transition-colors h-full flex flex-col">
                         <div
-                          className={`aspect-[4/3] bg-gradient-to-br ${e.coverTone} relative flex items-end p-6`}
+                          className={`aspect-[4/3] bg-gradient-to-br ${e.cover_tone} relative flex items-end p-6`}
                         >
                           <p className="text-ink-200 text-xs drop-shadow">
                             {e.date}
                           </p>
-                          {!e.isPublic && (
+                          {!e.is_public && (
                             <div className="absolute top-4 right-4">
                               <LockBadge />
                             </div>
