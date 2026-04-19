@@ -70,12 +70,31 @@ create table if not exists event_costs (
   created_at timestamptz not null default now()
 );
 
--- 입회 문의
+-- 입회 문의 (랜딩 페이지 익명 문의)
 create table if not exists inquiries (
   id uuid primary key default gen_random_uuid(),
   name text not null,
   phone text not null,
   message text,
+  created_at timestamptz not null default now()
+);
+
+-- 참여 신청 (공식 신청서)
+create table if not exists applications (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  contact text not null,
+  job text not null,
+  motivation text not null,
+  referral text,
+  status text not null default 'pending' check (status in ('pending', 'contacted', 'accepted', 'declined')),
+  created_at timestamptz not null default now()
+);
+
+-- 익명 고민 함 (멤버 전용)
+create table if not exists anonymous_worries (
+  id uuid primary key default gen_random_uuid(),
+  content text not null,
   created_at timestamptz not null default now()
 );
 

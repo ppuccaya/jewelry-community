@@ -2,67 +2,91 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url("https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;500;600;700&display=swap");
+
 @layer base {
   :root {
     --font-sans: "Pretendard", "Apple SD Gothic Neo", system-ui, sans-serif;
   }
 
   body {
-    @apply text-gray-900 antialiased;
+    @apply text-ink-900 antialiased bg-ink-50;
+    font-feature-settings: "ss01";
+  }
+
+  h1, h2, h3, h4 {
+    @apply font-serif;
+    letter-spacing: -0.01em;
   }
 }
 
 @layer components {
+  /* 퍼블릭 영역 컴포넌트 */
+  .container-narrow {
+    @apply max-w-3xl mx-auto px-6;
+  }
+  .container-wide {
+    @apply max-w-6xl mx-auto px-6;
+  }
+
+  .btn-dark {
+    @apply bg-ink-900 hover:bg-ink-800 text-ink-50 font-medium px-6 py-3 rounded-none transition-colors tracking-wide;
+  }
+  .btn-outline {
+    @apply border border-ink-900 hover:bg-ink-900 hover:text-ink-50 text-ink-900 font-medium px-6 py-3 rounded-none transition-colors tracking-wide;
+  }
+
+  .eyebrow {
+    @apply text-xs font-medium tracking-extra-wide uppercase text-bronze-600;
+  }
+
+  .divider {
+    @apply w-12 h-px bg-bronze-400;
+  }
+
+  /* 어드민용 (기존 유지) */
   .btn-primary {
     @apply bg-gold-600 hover:bg-gold-700 text-white font-medium px-4 py-2 rounded-lg transition-colors;
   }
-
   .btn-secondary {
     @apply bg-white hover:bg-gray-50 text-gray-700 font-medium px-4 py-2 rounded-lg border border-gray-200 transition-colors;
   }
-
   .btn-danger {
     @apply bg-red-500 hover:bg-red-600 text-white font-medium px-4 py-2 rounded-lg transition-colors;
   }
-
   .card {
     @apply bg-white rounded-xl border border-gray-100 shadow-sm p-5;
   }
-
   .input {
     @apply w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gold-400 focus:border-transparent;
   }
-
   .label {
     @apply block text-sm font-medium text-gray-700 mb-1;
   }
+
+  /* 퍼블릭 폼 */
+  .field-input {
+    @apply w-full bg-transparent border-0 border-b border-ink-300 px-0 py-3 text-ink-900 placeholder-ink-400 focus:outline-none focus:border-ink-900 transition-colors;
+  }
+  .field-label {
+    @apply block text-xs font-medium tracking-wide uppercase text-ink-500 mb-2;
+  }
 }
 
-/* react-big-calendar 커스텀 스타일 */
-.rbc-calendar {
-  @apply font-sans;
-}
+/* react-big-calendar 커스텀 스타일 (어드민용) */
+.rbc-calendar { @apply font-sans; }
+.rbc-header { @apply py-2 font-medium text-gray-600 text-sm; }
+.rbc-today { @apply bg-gold-50; }
+.rbc-event { @apply bg-gold-500 border-gold-600 rounded; }
+.rbc-selected { @apply bg-gold-600; }
+.rbc-btn-group button { @apply text-sm; }
+.rbc-toolbar button { @apply cursor-pointer; }
 
-.rbc-header {
-  @apply py-2 font-medium text-gray-600 text-sm;
+/* 애니메이션 */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
-
-.rbc-today {
-  @apply bg-gold-50;
-}
-
-.rbc-event {
-  @apply bg-gold-500 border-gold-600 rounded;
-}
-
-.rbc-selected {
-  @apply bg-gold-600;
-}
-
-.rbc-btn-group button {
-  @apply text-sm;
-}
-
-.rbc-toolbar button {
-  @apply cursor-pointer;
+.fade-in-up {
+  animation: fadeInUp 0.8s ease-out forwards;
 }
